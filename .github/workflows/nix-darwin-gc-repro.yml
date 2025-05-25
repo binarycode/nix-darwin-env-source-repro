@@ -18,48 +18,22 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Show initial /etc/ contents
-      run: |
-        echo "=== Initial /etc/ contents ==="
-        ls -la /etc/ || true
-        echo "=== End initial /etc/ contents ==="
+    - name: Install Nix
+      uses: cachix/install-nix-action@v27
+      with:
+        extra_nix_config: |
+          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install Nix using Determinate Systems installer
+    - name: Build and switch
       run: |
-        curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
-        echo "Nix installation completed"
-        
-    - name: Source nix environment and configure
-      run: |
-        echo "Sourcing nix environment..."
-        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-        echo "PATH=$PATH" >> $GITHUB_ENV
-        echo "NIX_PATH=$NIX_PATH" >> $GITHUB_ENV
-        
-        # Configure git for nix flakes (helps with rate limiting)
-        git config --global user.email "action@github.com"
-        git config --global user.name "GitHub Action"
-        
-        # Set GitHub token for nix to avoid rate limiting
-        echo "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}" | sudo tee -a /etc/nix/nix.conf
-
-    - name: Install nix-darwin
-      run: |
-        echo "Installing nix-darwin..."
-        sudo nix run nix-darwin -- switch --flake .#${{ matrix.config }}
-        echo "nix-darwin installation completed"
+        nix build .#darwinConfigurations.good.system
+        sudo ./result/sw/bin/darwin-rebuild switch --flake .#good
 
     - name: Show /etc/ contents after nix-darwin installation
       run: |
         echo "=== /etc/ contents after nix-darwin installation ==="
-        ls -la /etc/ || true
+        ls -la /etc/
         echo "=== End /etc/ contents after installation ==="
-
-    - name: Show nix-darwin generation info
-      run: |
-        echo "=== Current nix-darwin generation ==="
-        darwin-rebuild --list-generations || true
-        echo "=== End generation info ==="
 
     - name: Run nix-collect-garbage
       run: |
@@ -70,5 +44,5 @@ jobs:
     - name: Show /etc/ contents after garbage collection
       run: |
         echo "=== /etc/ contents after garbage collection ==="
-        ls -la /etc/ || true
+        ls -la /etc/
         echo "=== End /etc/ contents after GC ==="
