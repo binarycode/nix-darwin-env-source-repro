@@ -2,9 +2,11 @@ name: Nix-Darwin GC Bug Reproduction
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
   pull_request:
-    branches: [ master ]
+    branches:
+    - master
   workflow_dispatch:
 
 jobs:
@@ -12,7 +14,9 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        config: [ good bad ]
+        config:
+        - good
+        - bad
     
     steps:
     - uses: actions/checkout@v4
@@ -20,6 +24,8 @@ jobs:
       with:
         source-url: https://install.lix.systems/lix/lix-installer-aarch64-darwin
     - run: |
-        nix build .#darwinConfigurations.good.system
-        ./result/sw/bin/darwin-rebuild check --flake .#good
+        nix build .#darwinConfigurations.{{ matrix.config }}.system
+        ./result/sw/bin/darwin-rebuild check --flake .#{{ matrix.config }}
+    - run: ls -la /etc
+    - run: nix-collect-garbage -d
     - run: ls -la /etc
