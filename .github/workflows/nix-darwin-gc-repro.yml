@@ -23,7 +23,7 @@ jobs:
       with:
         source-url: https://install.lix.systems/lix/lix-installer-aarch64-darwin
     - run: nix build .#darwinConfigurations.${{ matrix.config }}.system
-    - run: mv /etc/nix/nix.conf /etc/nix/nix.conf.before-nix-darwin
+    - run: sudo mv /etc/nix/nix.conf /etc/nix/nix.conf.before-nix-darwin
     - run: sudo ./result/sw/bin/darwin-rebuild switch --flake .#${{ matrix.config }}
     - run: ls -la /etc/
     - run: cat /etc/flake.nix || true
