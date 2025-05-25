@@ -17,6 +17,8 @@
         system = "aarch64-darwin";
         modules = [
           ({
+            services.nix-daemon.enable = true;
+            nix.settings.experimental-features = [ "nix-command" "flakes" ];
             environment.etc."flake.nix".source = ./flake.nix;
           })
         ];
