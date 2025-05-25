@@ -12,14 +12,14 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        config: [good]
+        config: [ good bad ]
     
     steps:
     - uses: actions/checkout@v4
     - uses: DeterminateSystems/nix-installer-action@main
       with:
         source-url: https://install.lix.systems/lix/lix-installer-aarch64-darwin
-    - name: Build Darwin Configuration
-      run: |
+    - run: |
         nix build .#darwinConfigurations.good.system
         ./result/sw/bin/darwin-rebuild check --flake .#good
+    - run: ls -la /etc
