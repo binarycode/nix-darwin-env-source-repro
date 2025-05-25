@@ -2,9 +2,9 @@ name: Nix-Darwin GC Bug Reproduction
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ master ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
@@ -15,34 +15,12 @@ jobs:
         config: [good]
     
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Install Nix
-      uses: cachix/install-nix-action@v27
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@main
       with:
-        extra_nix_config: |
-          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-
-    - name: Build and switch
+        source-url: https://install.lix.systems/lix/lix-installer-aarch64-darwin
+    - uses: DeterminateSystems/magic-nix-cache-action@main
+    - name: Build Darwin Configuration
       run: |
         nix build .#darwinConfigurations.good.system
-        sudo ./result/sw/bin/darwin-rebuild switch --flake .#good
-
-    - name: Show /etc/ contents after nix-darwin installation
-      run: |
-        echo "=== /etc/ contents after nix-darwin installation ==="
-        ls -la /etc/
-        echo "=== End /etc/ contents after installation ==="
-
-    - name: Run nix-collect-garbage
-      run: |
-        echo "Running nix-collect-garbage..."
-        nix-collect-garbage -d
-        echo "Garbage collection completed"
-
-    - name: Show /etc/ contents after garbage collection
-      run: |
-        echo "=== /etc/ contents after garbage collection ==="
-        ls -la /etc/
-        echo "=== End /etc/ contents after GC ==="
+        ./result/sw/bin/darwin-rebuild check --flake .#good
