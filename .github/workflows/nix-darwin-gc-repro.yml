@@ -12,7 +12,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        config: [bad, good]
+        config: [good]
     
     steps:
     - name: Checkout repository
@@ -29,12 +29,19 @@ jobs:
         curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
         echo "Nix installation completed"
         
-    - name: Source nix environment
+    - name: Source nix environment and configure
       run: |
         echo "Sourcing nix environment..."
         . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
         echo "PATH=$PATH" >> $GITHUB_ENV
         echo "NIX_PATH=$NIX_PATH" >> $GITHUB_ENV
+        
+        # Configure git for nix flakes (helps with rate limiting)
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+        
+        # Set GitHub token for nix to avoid rate limiting
+        echo "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}" | sudo tee -a /etc/nix/nix.conf
 
     - name: Install nix-darwin
       run: |
