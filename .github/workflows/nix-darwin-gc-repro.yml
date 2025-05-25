@@ -35,7 +35,7 @@ jobs:
     - name: Install nix-darwin
       run: |
         echo "Installing nix-darwin..."
-        nix run nix-darwin -- switch --flake .#${{ matrix.config }}
+        sudo nix run nix-darwin -- switch --flake .#${{ matrix.config }}
         echo "nix-darwin installation completed"
 
     - name: Show /etc/ contents after nix-darwin installation
