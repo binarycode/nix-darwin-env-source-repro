@@ -16,16 +16,15 @@ jobs:
       matrix:
         config:
         - good
-        - bad
     
     steps:
     - uses: actions/checkout@v4
     - uses: DeterminateSystems/nix-installer-action@main
       with:
         source-url: https://install.lix.systems/lix/lix-installer-aarch64-darwin
-    - run: cat /etc/synthetic.conf
+    - run: sudo cat /etc/synthetic.conf
     - run: nix build .#darwinConfigurations.${{ matrix.config }}.system
-    - run: ./result/sw/bin/darwin-rebuild switch --flake .#${{ matrix.config }}
+    - run: sudo ./result/sw/bin/darwin-rebuild switch --flake .#${{ matrix.config }}
     - run: ls -la /etc/
     - run: cat /etc/flake.nix || true
     - run: nix-collect-garbage -d
