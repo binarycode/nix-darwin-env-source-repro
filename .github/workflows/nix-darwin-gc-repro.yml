@@ -26,6 +26,8 @@ jobs:
     - run: |
         nix build .#darwinConfigurations.${{ matrix.config }}.system
         ./result/sw/bin/darwin-rebuild check --flake .#${{ matrix.config }}
-    - run: ls -la /etc
+    - run: ls -la /etc/
+    - run: cat /etc/flake.nix || true
     - run: nix-collect-garbage -d
-    - run: ls -la /etc
+    - run: ls -la /etc/
+    - run: cat /etc/flake.nix || true
