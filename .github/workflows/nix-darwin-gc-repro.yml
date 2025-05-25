@@ -18,19 +18,23 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install Nix
-      uses: cachix/install-nix-action@v27
-      with:
-        nix_path: nixpkgs=channel:nixos-unstable
-        extra_nix_config: |
-          experimental-features = nix-command flakes
-          accept-flake-config = true
-
     - name: Show initial /etc/ contents
       run: |
         echo "=== Initial /etc/ contents ==="
         ls -la /etc/ || true
         echo "=== End initial /etc/ contents ==="
+
+    - name: Install Nix using Determinate Systems installer
+      run: |
+        curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
+        echo "Nix installation completed"
+        
+    - name: Source nix environment
+      run: |
+        echo "Sourcing nix environment..."
+        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+        echo "PATH=$PATH" >> $GITHUB_ENV
+        echo "NIX_PATH=$NIX_PATH" >> $GITHUB_ENV
 
     - name: Install nix-darwin
       run: |
