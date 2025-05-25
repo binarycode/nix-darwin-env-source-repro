@@ -26,6 +26,7 @@ jobs:
     - run: nix build .#darwinConfigurations.${{ matrix.config }}.system
     - run: sudo rm /etc/nix/nix.conf
     - run: sudo ./result/sw/bin/darwin-rebuild switch --flake .#${{ matrix.config }}
-    - run: cat /etc/flake.nix || true
+    - run: realpath /etc/flake.nix
+    - run: cat /etc/flake.nix
     - run: nix-collect-garbage -d
-    - run: cat /etc/flake.nix || true
+    - run: cat /etc/flake.nix
